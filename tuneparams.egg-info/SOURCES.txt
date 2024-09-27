@@ -1,4 +1,3 @@
-setup.cfg
 setup.py
 tuneparams/__init__.py
 tuneparams/cli.py
