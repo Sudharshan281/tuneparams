@@ -1,10 +1,10 @@
 import ast
 
-class ScriptModifier(ast.NodeTransformer): 
+class ScriptModifier(ast.NodeTransformer):
     def __init__(self, modifications):
         self.modifications = modifications
 
-    def visit_FunctionDef(self, node): 
+    def visit_FunctionDef(self, node):
         """Visit function definitions and modify default parameter values."""
         for i, default in enumerate(node.args.defaults):
             if i < len(node.args.args):
@@ -22,7 +22,7 @@ class ScriptModifier(ast.NodeTransformer):
                     new_value = self.modifications[target.id]
                     node.value = ast.Constant(value=new_value)
         return self.generic_visit(node)
-    
+
     def visit_Call(self, node):
         """Visit all function calls and modify keyword arguments and positional arguments."""
         for keyword in node.keywords:
