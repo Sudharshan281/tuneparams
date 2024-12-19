@@ -1,59 +1,119 @@
 
 # TuneParams
 
-TuneParams is a command-line tool that allows users to modify and execute Python scripts with customizable parameters. 
+[![PyPI version](https://badge.fury.io/py/tuneparams.svg)](https://badge.fury.io/py/tuneparams)
+[![Python 3.7+](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## Features
+## Overview
 
-- Modify parameters dynamically in your Python scripts.
-- Run scripts with parameter values specified in the command line or in a separate file.
-- Easy integration with existing Python projects.
+We've built TuneParams as a lightweight CLI tool to help you explore parameter spaces in your machine learning workflows. Using AST manipulation, we make it possible to modify parameters dynamically without touching your source code.
+
+## Key Features
+
+- **AST-Based Script Transformation**: Dynamic code parsing and modification through Python's AST module
+- **Multi-Modal Parameter Input**: Supports direct CLI, file-based, and range-based parameter specifications
+- **Automated Combinatorial Exploration**: Systematically generates and evaluates parameter combinations you specify
+- **Structured Result Management**: Built-in CSV-based logging with querying capabilities
+- **Non-Intrusive Integration**: Zero modifications required to your existing experimental scripts
 
 ## Installation
-
-You can install TuneParams via pip:
 
 ```bash
 pip install tuneparams
 ```
 
-## Usage
+## Usage Modes
 
-You can run your ML/Python scripts using 2 methods with `TuneParams`. 
-
-1. **Command Line Parameters**: 
-   Specify the parameters you want to change directly in the command prompt. For example, if you want to test 10 different parameter combinations like `random_state=33, min_depth=41`, `n_estimators=11`, and `test_size=0.4`, you can provide them as follows:
-   ```bash
-   tuneparams <script.py> param1=value1 param2=value2 ...
-   ```
-
-2. **Parameter File**: 
-   Alternatively, you can create a file containing all possible combinations of parameters and use it to run `TuneParams`. The file should have each parameter set separated by commas, and each combination in a new line. You can run them as follows:
-   ```bash
-   tuneparams <script.py> --param-file <file.txt>
-   ```
-
-   **Note:** In the parameter file, each line should contain parameters in the format `param1=value1, param2=value2, ...`.
-
-## Examples
-
-### Command Line Example
+### 1. Direct Parameter Specification
 ```bash
-tuneparams my_script.py learning_rate=0.01 epochs=10
+tuneparams model.py random_state=44, min_depth=10
 ```
 
-### Parameter File Example
-Create a file `params.txt` with the following content:
-```
-learning_rate=0.01, epochs=10
-learning_rate=0.1, epochs=5
-```
-Then run:
+### 2. Configuration File Mode
 ```bash
-tuneparams my_script.py --param-file params.txt
+tuneparams model.py --param-file param_list.txt
 ```
 
-## Contributing
+Here's what your `param_list.txt` might look like:
+```txt
+learning_rate: 0.01, batch_size: 32, n_epochs: 100
+random_state=50, max_depth=8
+test_size=0.4, n_estimators=100
+```
 
-Contributions are welcome! Please feel free to submit a pull request or open an issue.
+### 3. Range-Based Exploration
+```bash
+tuneparams model.py --range ranges.txt
+```
+
+Here's an example `ranges.txt`:
+```txt
+n_epoch=[50,200]
+n_estimators=[100,110]
+max_depth=[8,15]
+```
+
+### 4. Result Analysis
+```bash
+# Query experiments matching specific criteria 
+tuneparams --query "accuracy >= 0.85 precision > 0.8"
+```
+
+## Pipeline
+
+1. **Parsing**: Source code conversion to AST representation
+2. **Analysis**: Parameter assignment node identification
+3. **Transformation**: AST modification with new parameter values
+4. **Regeneration**: Modified AST conversion back to executable code
+5. **Execution**: Running transformed script with parameter combinations
+
+
+![TuneParams Architecture Diagram](https://github.com/user-attachments/assets/b9a982fd-0163-4f2a-bd26-1ca3030ac7b6)
+
+### Result Management
+- **Storage**: We store experimental results in a local CSV database, with each row representing a unique experimental configuration and its corresponding performance metrics.
+- **Schema**:
+  - **ID**: A unique identifier for each experiment
+  - **Input Parameters**: A list of parameter configurations used for the experiment
+  - **Metrics**: We store all the metrics (eg: accuracy, precision, recall, and F1 score) values in seperate columns
+
+## System Requirements
+
+### Core Dependencies
+- `Python` ≥ 3.7
+- `astor` ≥ 0.8.0
+- `pandas` ≥ 1.0.0
+
+## Development Roadmap
+
+### Current Version (0.2.3)
+- [x] AST transformation
+- [x] Multiple parameter input modes
+- [x] Result logging and querying
+
+### Upcoming Features (0.3.0)
+- [ ] Parallel execution support
+- [ ] Advanced metric extraction patterns
+- [ ] Support for C++, Java and other languages
+
+## Best Practices
+
+```python
+# TuneX-compatible format for printing metrics
+def print_metrics(metrics: Dict[str, float]):
+    """Print metrics in TuneParams-compatible format"""
+    for name, value in metrics.items():
+        print(f"{name}: {value}")
+
+# Example usage
+print_metrics({
+    "accuracy": 0.857,
+    "loss": 0.234,
+    "f1_score": 0.843
+})
+```
+
+**Disclaimer**: While we've made parameter exploration less time consuming, research still requires your expertise and insight.
+
 
